@@ -14,8 +14,6 @@ env:
   VCVER: '14.27.29110'
   WINSDKVER: '10.0.19041.0'
   NINJA_STATUS: '[%f/%t %e %r]'
-  SF_PW_MAPPED: ${{ secrets.SF_PW }}
-  SF_USER_MAPPED: ${{ secrets.SF_USER }}
   VC_LTL_VER: 5.0.5
 
 jobs:
