@@ -446,7 +446,7 @@ setup_win_clang(){
   local clang_name=${USE_TOOLCHAIN##*/}
   local clang=$clang_dir${clang_name/-cl/}
   USE_LD=$($clang -print-prog-name=lld-link) use_lld # lld 6.0 fixes undefined __enclave_config in msvcrt14.12. `lld -flavor link` just warns --version-script and results in link error
-  enable_pic=false
+  enable_pic=true
   use_llvm_binutils windres
   #use_lld # --target=i386-pc-windows-msvc -fuse-ld=lld: must use with -Wl,
   enable_lto=false # ffmpeg: "LTO requires same compiler and linker"
@@ -768,7 +768,7 @@ setup_vc_winrt_env() {
 setup_vc_common_env() {
   local arch=x86_64 #used by configure --arch
   if [ "${platform:0:3}" = "arm" ]; then
-    enable_pic=false  # TODO: ffmpeg bug, should filter out -fPIC. armasm(gas) error (unsupported option) if pic is
+    enable_pic=true  # TODO: ffmpeg bug, should filter out -fPIC. armasm(gas) error (unsupported option) if pic is
     type -a gas-preprocessor.pl
     # vc only arm64_neon.h
     [ -z "${platform/*64*/}" ] && {
@@ -1500,7 +1500,7 @@ config1(){
   test -n "$EXTRA_LDSOFLAGS" && TOOLCHAIN_OPT+=" --extra-ldsoflags=\"$EXTRA_LDSOFLAGS\""
   test -n "$EXTRALIBS" && TOOLCHAIN_OPT+=" --extra-libs=\"$EXTRALIBS\""
   echo INSTALL_DIR: $INSTALL_DIR
-  is_libav || FEATURE_OPT+=" --disable-postproc"
+  is_libav || FEATURE_OPT+=" --enable-postproc"
   local CONFIGURE="configure --extra-version=avbuild --disable-doc ${DEBUG_OPT} $LIB_OPT --enable-runtime-cpudetect $FEATURE_OPT $TOOLCHAIN_OPT $USER_OPT"
   : ${NO_ENC=false}
     CONFIGURE+=" $DEC_OPT $DEMUX_OPT $ENC_OPT $MUX_OPT"
