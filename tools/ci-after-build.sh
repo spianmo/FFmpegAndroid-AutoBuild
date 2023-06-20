@@ -11,6 +11,3 @@ export XZ_OPT="--threads=`getconf _NPROCESSORS_ONLN` -9e" # -9e. -8/9 will disab
 tar Jcf ffmpeg-${SUFFIX}{.tar.xz,}
 ls -lh *.xz
 [ "$GITHUB_EVENT_NAME" == "pull_request" ] && exit 0
-
-echo "SF_USER_MAPPED: $SF_USER_MAPPED"
-sshpass -p $SF_PW_MAPPED scp -o StrictHostKeyChecking=no ffmpeg-${SUFFIX}.tar.xz $SF_USER_MAPPED,avbuild@frs.sourceforge.net:/home/frs/project/a/av/avbuild/${TARGET_OS}
