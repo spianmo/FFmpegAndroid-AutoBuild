@@ -17,4 +17,3 @@ export XZ_OPT="--threads=`getconf _NPROCESSORS_ONLN` -9e" # -9e. -8/9 will disab
 tar Jcf ffmpeg-${SUFFIX}{.tar.xz,}
 echo "tar end"
 ls -lh *.xz
-[ "$GITHUB_EVENT_NAME" == "pull_request" ] && exit 0
