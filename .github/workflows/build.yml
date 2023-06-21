@@ -46,7 +46,7 @@ jobs:
       run: |
         export ANDROID_NDK=$ANDROID_NDK_LATEST_HOME
         export FFSRC=$PWD/ffmpeg-${FF_VERSION}
-        export USER_OPT="--enable-wolfssl"
+        export USER_OPT="--enable-wolfssl --enable-pic"
         ./avbuild.sh ${TARGET_OS}
     - name: Make SDK
       shell: bash
