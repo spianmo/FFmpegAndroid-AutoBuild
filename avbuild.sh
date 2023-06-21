@@ -1013,7 +1013,7 @@ use armv6t2 or -mthumb-interwork: https://gcc.gnu.org/onlinedocs/gcc-4.5.3/gcc/A
     fi
   fi
   #test -d $ANDROID_GCC_DIR || $NDK_ROOT/build/tools/make-standalone-toolchain.sh --platform=android-$API_LEVEL --toolchain=$TOOLCHAIN --install-dir=$ANDROID_GCC_DIR #--system=linux-x86_64
-  TOOLCHAIN_OPT+=" --extra-ldexeflags=\"-Wl,--gc-sections -Wl,-z,nocopyreloc -fPIC $EXE_FLAGS\""
+  TOOLCHAIN_OPT+=" --extra-ldexeflags=\"-Wl,--gc-sections -Wl,-z,nocopyreloc -pie $EXE_FLAGS\""
   INSTALL_DIR=sdk-android-${1:-${ANDROID_ARCH}}
   $IS_CLANG && INSTALL_DIR="${INSTALL_DIR}-clang" || INSTALL_DIR="${INSTALL_DIR}-gcc"
   enable_opt jni mediacodec
