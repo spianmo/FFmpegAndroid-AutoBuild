@@ -773,7 +773,7 @@ setup_vc_common_env() {
     # vc only arm64_neon.h
     [ -z "${platform/*64*/}" ] && {
       BIT=64
-      TOOLCHAIN_OPT+=" --disable-pic" # arm64 pic is enabled by: enabled spic && enable_weak pic
+      TOOLCHAIN_OPT+=" --enable-pic" # arm64 pic is enabled by: enabled spic && enable_weak pic
     } || ASM_OPT+=" --enable-thumb --cpu=armv7-a"
     which cpp &>/dev/null && { # install gcc
       ASM_OPT+=" --as=armasm$BIT"
