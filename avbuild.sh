@@ -1490,7 +1490,7 @@ config1(){
       echo "lto is disabled when build static libs to get better compatibility"
     }
   fi
-  $enable_pic && TOOLCHAIN_OPT+=" --enable-pic"
+  TOOLCHAIN_OPT+=" --enable-pic"
   EXTRA_CFLAGS=$(trim2 $EXTRA_CFLAGS)
   EXTRA_LDFLAGS=$(trim2 $EXTRA_LDFLAGS)
   EXTRA_LDSOFLAGS=$(trim2 $EXTRA_LDSOFLAGS)
