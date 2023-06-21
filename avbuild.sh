@@ -889,6 +889,7 @@ setup_android_env() {
     # from ndk: x86 devices have stack alignment issues.
     # clang error: inline assembly requires more registers than available ("movzbl "statep"    , "ret")
     CFLAGS_GCC+=" -mstackrealign"
+    TOOLCHAIN_OPT+=" --disable-asm"
     enable_lto=false
   elif [ -z "${ANDROID_ARCH/x*64/}" ]; then
     [ $API_LEVEL -lt 21 ] && API_LEVEL=21
