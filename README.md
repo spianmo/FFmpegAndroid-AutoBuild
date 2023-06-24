@@ -1,3 +1,5 @@
+Fork from the https://github.com/wang-bin/avbuild warehouse, fix the text relocation problem of the android x86 runtime library, recompile with the -fPic and --enable-pic compilation flags, and modify the automatic build of the github action The task is once every 3 days, from the FFmpeg master branch
+----
 It's a tool to build ffmpeg for almost all platforms.
 
 How: https://github.com/wang-bin/avbuild/wiki
