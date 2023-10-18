@@ -311,7 +311,7 @@ use_llvm_binutils() {
   local clang_dir=${USE_TOOLCHAIN%clang*}
   local clang_name=${USE_TOOLCHAIN##*/}
   local clang=$clang_dir${clang_name/-cl/}
-  local CLANG_FALLBACK=clang-${LLVM_VER:-16}
+  local CLANG_FALLBACK=clang-${LLVM_VER:-17}
   $IS_APPLE_CLANG && CLANG_FALLBACK=/usr/local/opt/llvm/bin/clang
   echo "clang: `$clang --version`"
   # -print-prog-name= prints native dir format(on windows) and `which` fails
@@ -872,6 +872,7 @@ setup_android_env() {
     API_LEVEL=14
     [ $NDK_VER -gt 17 ] && API_LEVEL=16
     [ $NDK_VER -gt 23 ] && API_LEVEL=19
+    [ $NDK_VER -gt 25 ] && API_LEVEL=21  # TODO: always neon
   }
   local UNIFIED_SYSROOT="$NDK_ROOT/sysroot"
   [ -d "$UNIFIED_SYSROOT" ] || UNIFIED_SYSROOT=
@@ -891,6 +892,7 @@ setup_android_env() {
     CFLAGS_GCC+=" -mstackrealign"
     TOOLCHAIN_OPT+=" --disable-asm"
     enable_lto=false
+    TOOLCHAIN_OPT+=" --disable-asm" # FIXME: text relocations in x86/tx_float.asm
   elif [ -z "${ANDROID_ARCH/x*64/}" ]; then
     [ $API_LEVEL -lt 21 ] && API_LEVEL=21
     ANDROID_ARCH=x86_64
@@ -965,7 +967,6 @@ use armv6t2 or -mthumb-interwork: https://gcc.gnu.org/onlinedocs/gcc-4.5.3/gcc/A
   echo "ANDROID_LLVM_DIR=${ANDROID_LLVM_DIR}"
   ANDROID_GCC_DIR_REL=${ANDROID_GCC_DIR#$NDK_ROOT}
   [ -n "$ld_lld" ] && {
-    [ $ANDROID_ARCH = "x86" ] && LFLAGS_CLANG+=" -Wl,-z,notext"
     TRY_FIX_CORTEX_A8=false
     TOOLCHAIN_OPT+=" --strip=$LLVM_STRIP" # https://github.com/android/ndk/issues/1148  TODO: add in use_llvm_binutils if llvm-strip works for other platforms
     LFLAGS_CLANG+=" -fuse-ld=lld -rtlib=compiler-rt" # use compiler-rt instead of default libgcc.a so -gcc-toolchain is not required
@@ -1044,6 +1045,7 @@ setup_ios_env() {
 # clang -arch i386 -arch x86_64
 ## cc="xcrun -sdk iphoneos clang" or cc=`xcrun -sdk iphoneos --find clang`
   local IOS_ARCH=$1
+  local OS=$2
   local cc_has_bitcode=false # bitcode since xcode 7. deprecated in xcode14
   clang -fembed-bitcode -E - </dev/null &>/dev/null && cc_has_bitcode=true
   : ${BITCODE:=false}
@@ -1061,7 +1063,7 @@ setup_ios_env() {
   local VER_OS=iphoneos
   local BITCODE_FLAGS=
   local ios5_lib_dir=
-  if [ "${IOS_ARCH:0:3}" == "arm" ]; then
+  if [[ "$IOS_ARCH" == "arm"* && "$OS" != *"simulator"* ]]; then
     $enable_bitcode && BITCODE_FLAGS="-fembed-bitcode" # also works for new sdks
     BITCODE_LFLAGS=$BITCODE_FLAGS
     if [ "${IOS_ARCH:3:2}" == "64" ]; then
@@ -1085,6 +1087,8 @@ setup_ios_env() {
       ios_min=7.0
     elif [ "${IOS_ARCH}" == "x86" ]; then
       IOS_ARCH=i386
+    else
+      ios_min=8.0
     fi
     # TOOLCHAIN_OPT+=" --disable-asm" # if bitcode
   fi
@@ -1621,7 +1625,7 @@ EOF
     cp -af $FFBUILD/config.log $THIS_DIR/$INSTALL_DIR
     exit 2
   }
-  $THIS_DIR/tools/mklibffmpeg.sh $PWD $THIS_DIR/$INSTALL_DIR
+  $THIS_DIR/tools/mklibffmpeg.sh $PWD $THIS_DIR/$INSTALL_DIR || exit 3
   cd $THIS_DIR/$INSTALL_DIR
   echo "https://github.com/wang-bin/avbuild" > README.txt
   cp -af "$FFSRC/Changelog" .
@@ -1643,14 +1647,14 @@ build_all(){
     [ -z "$archs" ] && {
       echo ">>>>>no arch is set. setting default archs..."
       [ "${os:0:3}" == "ios" ] && {
-        echo $os | grep simulator >/dev/null && archs=(x86 x86_64) || archs=(armv7 arm64)
+        echo $os | grep simulator >/dev/null && archs=(arm64 x86_64) || archs=(arm64)
       }
       [ "${os:0:7}" == "android" ] && archs=(armv7 arm64 x86 x86_64)
       [ "${os:0:3}" == "rpi" -o "${os:0:9}" == "raspberry" ] && archs=(armv6zk armv7-a)
       [[ "$os" == "sunxi" ]] && archs=(armv7)
       [ "${os:0:5}" == "mingw" ] && archs=(x86 x86_64)
       [ "${os:0:2}" == "vc" -o "${os:0:3}" == "win" ] && {
-        archs=(x86 x64 arm arm64)
+        archs=(x86 x64 arm64)
         [ -d "$VC_LTL_DIR" ] && archs=(x86 x64)
       }
       [[ "${os:0:5}" == "winrt" || "${os:0:3}" == "uwp" || "$os" == win*store* || "$os" == win*phone* ]] && archs=(x86 x64 arm arm64)

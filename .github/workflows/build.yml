@@ -2,7 +2,7 @@ name: Build
 
 permissions:
   contents: write
-  
+
 on:
   push:
   schedule:
@@ -13,7 +13,7 @@ env:
 #  if: (github.event_name == 'schedule')
 #  GITHUB_ENV: https://docs.github.com/en/actions/learn-github-actions/environment-variables#about-environment-variables
   FF_VERSION: ${{ secrets.FF_VER }} # TODO: latest release if triggered by schedule
-  LLVM_VER: 16
+  LLVM_VER: 17
   VCVER: '14.27.29110'
   WINSDKVER: '10.0.19041.0'
   NINJA_STATUS: '[%f/%t %e %r]'
@@ -30,7 +30,7 @@ jobs:
       matrix:
         config: [default]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: 'Restore sysroot cache'
       id: sysroot-cache
       uses: actions/cache@v3
