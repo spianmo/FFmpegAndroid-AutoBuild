@@ -10,8 +10,8 @@ on:
 
 
 env:
-#  if: (github.event_name == 'schedule')
-#  GITHUB_ENV: https://docs.github.com/en/actions/learn-github-actions/environment-variables#about-environment-variables
+  #  if: (github.event_name == 'schedule')
+  #  GITHUB_ENV: https://docs.github.com/en/actions/learn-github-actions/environment-variables#about-environment-variables
   FF_VERSION: ${{ secrets.FF_VER }} # TODO: latest release if triggered by schedule
   LLVM_VER: 17
   VCVER: '14.27.29110'
@@ -28,41 +28,41 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [default]
+        config: [ default ]
     steps:
-    - uses: actions/checkout@v4
-    - name: 'Restore sysroot cache'
-      id: sysroot-cache
-      uses: actions/cache@v3
-      with:
-        path: /tmp/sysroot
-        key: sysroot-${{ env.TARGET_OS }}-${{ secrets.LINUX_SYSROOT_ID }}
-    - name: Create Build Environment
-      shell: bash
-      env:
-        DEVTOOLS_CACHE_HIT: ${{ steps.devtools-cache.outputs.cache-hit }}
-        SYSROOT_CACHE_HIT: ${{ steps.sysroot-cache.outputs.cache-hit }}
-        EXTERNAL_DEP_CACHE_HIT: ${{ steps.external-dep-cache.outputs.cache-hit }}
-      run: ./tools/ci-before-build.sh
-    - name: Configure and Build
-      shell: bash
-      run: |
-        export ANDROID_NDK=$ANDROID_NDK_LATEST_HOME
-        export FFSRC=$PWD/ffmpeg-${FF_VERSION}
-        export USER_OPT="--enable-wolfssl --enable-pic"
-        ./avbuild.sh ${TARGET_OS}
-    - name: Make SDK
-      shell: bash
-      run: ./tools/ci-after-build.sh
-    - name: Archieve SDK
-      uses: actions/upload-artifact@v3
-      with:
-        name: ffmpeg-${{ env.FF_VERSION }}-${{ env.TARGET_OS }}-${{ matrix.config }}
-        path: ffmpeg-*.tar.xz
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: 'ffmpeg-*.tar.xz'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      - name: 'Restore sysroot cache'
+        id: sysroot-cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/sysroot
+          key: sysroot-${{ env.TARGET_OS }}-${{ secrets.LINUX_SYSROOT_ID }}
+      - name: Create Build Environment
+        shell: bash
+        env:
+          DEVTOOLS_CACHE_HIT: ${{ steps.devtools-cache.outputs.cache-hit }}
+          SYSROOT_CACHE_HIT: ${{ steps.sysroot-cache.outputs.cache-hit }}
+          EXTERNAL_DEP_CACHE_HIT: ${{ steps.external-dep-cache.outputs.cache-hit }}
+        run: ./tools/ci-before-build.sh
+      - name: Configure and Build
+        shell: bash
+        run: |
+          export ANDROID_NDK=$ANDROID_NDK_LATEST_HOME
+          export FFSRC=$PWD/ffmpeg-${FF_VERSION}
+          export USER_OPT="--enable-wolfssl --enable-pic"
+          ./avbuild.sh ${TARGET_OS}
+      - name: Make SDK
+        shell: bash
+        run: ./tools/ci-after-build.sh
+      - name: Archieve SDK
+        uses: actions/upload-artifact@v3
+        with:
+          name: ffmpeg-${{ env.FF_VERSION }}-${{ env.TARGET_OS }}-${{ matrix.config }}
+          path: ffmpeg-*.tar.xz
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: 'ffmpeg-*.tar.xz'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
